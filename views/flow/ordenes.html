@@ -1,0 +1,111 @@
+<!-- Ordenes Nav  --->
+<div class="collection left-align">
+    <a href="#" ng-click="logout()" class="tab right "><span class="btn small   purple lighten-2">{{User[0].nombres}} - {{pageTitle}} </span></a>
+
+    <div class="chip">
+        Mesa {{num}} # articulos ( {{ordenResume.cantidad}} ) 
+    </div>
+
+    <button data-target="detail" class="btn blue modal-trigger"  ><i class="material-icons">remove_red_eye</i></button>  
+    <button class="btn red" ng-click="unOrderTable(num)" ng-disabled=" ordenDetail.length > 0">   <i class="material-icons">remove_circle</i></button>      
+</div>
+<hr class="divider">
+
+<div class="row">
+</div>
+<hr>
+<div class="row">
+    <div class="col s12 m1"></div>    
+    <div class="col s12 m10">
+        <div class="row center-align">
+            <button  class="btn blue-grey" ng-repeat="categoria in categorias" ng-click="chooseProducts(categoria.idcategoria)">{{categoria.descripcion}}</button>
+        </div>
+        <div class="row">
+            <ul class="collection">        
+                <li class="collection-item avatar" ng-repeat="catProduct in catProducts">
+                    <i class="material-icons circle blue">{{catProduct.icon}}</i>
+                    <span class="title">{{catProduct.descripcion}}</span>
+                    <p>$ {{ catProduct.precio * 0 | number:2 }}</p>
+                    <a data-target="indicadores" class="modal-trigger secondary-content" ng-click="configProduct(catProduct.idproducto)"><i class="material-icons">build</i></a>
+                </li>
+            </ul>
+
+        </div>
+
+    </div>
+    <div class="col s12 m1"></div>        
+
+</div>
+
+
+
+<!-- Modal Total De Elementos  -->
+<div id="indicadores" class="modal">
+    <div class="modal-content">
+        <h4><i class="material-icons">{{indi[0].icon}}</i> {{indi[0].descripcion}}</h4>
+        <hr>
+        <p ng-repeat="indicador in indicadores">
+            <input type="radio" name="ind" value="{{indicador.val}}"   id="{{indicador.key}}" ng-model="config" ng-change="setCnf(indicador.key)"/>
+            <label for="{{indicador.key}}">{{indicador.key}}</label>
+        </p>
+        <hr>
+        <label> Cantidad </label>
+        <select class="browser-default" ng-options="o.val for o in cantidades.options" ng-model="cantidades.selekter"></select>
+    </div>
+    <div class="modal-footer">
+        <button class="modal-action modal-close  btn-flat"><i class="material-icons">clear</i></button>
+        <button class="modal-action waves-effect waves-green btn-flat" ng-click="addOrder(num)">agregar</button>
+        <!-- <button class="modal-action modal-close waves-effect waves-green btn-flat">pegar</button>-->
+    </div>
+</div>
+
+<!-- MODAL REVIEWS -->
+<div id="detail" class="modal">
+    <div class="modal-content">
+        <h4><i class="material-icons"></i> Orden mesa  {{num}}</h4>
+        <hr>
+        <input type="text" placeholder="Busqueda Rapida" ng-model="searchProd">
+        <table class="bordered">
+            <thead>
+                <tr>
+                    <!-- <th>Cantidad</th>--->
+                    <th>Producto</th>
+                    <th>Nota</th>
+                    <th><i class="material-icons">menu</i> </th>
+                </tr>
+            </thead>            
+            <tbody>
+                <tr ng-repeat="ordenDetai in ordenDetail | filter:searchProd ">
+                    <!--- <td>{{ordenDetai.cantidad}}</td> -->
+                    <td><b>({{ordenDetai.cantidad}})</b> {{ordenDetai.descripcion }} <s>{{ordenDetai.indicador}}</s> $ {{ordenDetai.precio * 0 }} </td>
+                    <td>
+                        <label for="nota">Nota</label> 
+                        <input type="text" placeholder="Nota Para Cocina" ng-disabled="ordenDetai.estatus === 1" ng-model="ordenDetai.nota"/>
+                    </td>
+                    <td>
+                    <td>
+                        <i class="material-icons" ng-if="ordenDetai.estatus === 0 " ng-click="deleteItemOrder( ordenDetail.indexOf(ordenDetai)  )"  >clear</i>
+                        <i class="material-icons" ng-if="ordenDetai.estatus === 1 "  >check</i>
+                    </td>
+                    
+                </tr>                            
+            </tbody>
+        </table>
+    </div>
+    <div class="modal-footer">
+        <button class="modal-action modal-close  btn-flat"><i class="material-icons">clear</i></button>
+        <button class="modal-action  waves-effect waves-green btn-flat" ng-click="orderIn()">ordenar</button>
+        <!-- modal-close -->
+        <button class="modal-action modal-close waves-effect waves-green btn-flat" ng-click="payOrder()">pagar</button>
+
+        <!-- <button class="modal-action modal-close waves-effect waves-green btn-flat">pegar</button>-->
+    </div>
+</div>
+
+
+
+<script>
+            $(document).ready(function () {
+                $('.modal').modal();
+            });
+</script>

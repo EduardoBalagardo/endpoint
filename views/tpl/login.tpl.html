@@ -1,0 +1,49 @@
+<div class="section"></div>
+  <main>
+    <center>      
+      <div class="section"></div>
+      <h4 class="">Tortas Ahogadas Guadalajara desde 2002</h4>
+      <div class="section">
+          <h5>Bienvenido {{user.user}}</h5>
+      </div>
+      
+      <div class="container">
+        <div class="z-depth-1 grey lighten-4 row" >
+
+          <form class="col s12" method="post" name="form_login">
+            <div class='row'>
+              <div class='col s12'>
+              </div>
+            </div>
+
+            <div class='row'>
+              <div class='input-field col s12'>
+                <input  type='text' name='user' id='user' ng-model="user.user" required />
+                <label for='user'>Usuario</label>
+              </div>
+            </div>
+
+            <div class='row'>
+              <div class='input-field col s12'>
+                <input type='password' name='password' id='password' ng-model="user.pass" required />
+                <label for='password'>Password</label>
+              </div>
+            </div>
+            <br />
+            
+            <center>
+              <div class='row'>
+                  <button type='submit' name='btn_login' class='col s12 btn btn-large ' ng-click="login(user)" ng-disabled="form_login.$invalid">Entrar</button>
+                  <p>
+              </div>
+            </center>
+            <p><b>{{msn}}</b></p>
+          </form>
+        </div>
+      </div>
+      <br><br><br><br><br><br>      
+    </center>
+
+    <div class="section"></div>
+    <div class="section"></div>
+  </main>

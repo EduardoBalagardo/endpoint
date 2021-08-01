@@ -1,0 +1,103 @@
+<div class="row">    
+<div class="fixed-action-btn">
+  <a class="btn-floating btn-large green darken-1">
+    <i class="large material-icons">mode_edit</i>
+  </a>
+  <ul>
+      <li><a class="btn-floating red" ng-click="changeView('graficas')"><i class="material-icons">insert_chart</i></a></li>
+    <li><a class="btn-floating yellow darken-1" ng-click="changeView('ordenes')"><i class="material-icons">apps</i></a></li>
+  </ul>
+</div>
+</div>
+<div class="col s12 m1"> </div>
+<!--  Graficas  --->
+<div class="row col s12 " ng-if="ORTitle == 'graficas' ">
+    <h3 class="header center-align">{{ORTitle}}  <i class="material-icons">insert_chart</i></h3>
+    <hr class="divider ">
+    <div class="row  center-align container">
+        <h4>Los Mas comprados</h4>
+        <canvas id="radar" class="chart chart-radar" chart-data="data_all" chart-options="options" chart-labels="labels_all"></canvas> 
+    </div>
+    <div class="row center-align container">
+        <h4>Los Mas comprados</h4>
+        <canvas id="bar" class="chart chart-bar" chart-data="data_all" chart-labels="labels_all" chart-series="series"></canvas>
+    </div>    
+    <div class="row center-align container">
+        <h4>Los Mas comprados</h4>
+        <canvas id="polar-area" class="chart chart-polar-area" chart-data="data_all" chart-labels="labels_all" chart-options="options"></canvas> 
+    </div>
+</div>
+<!-- Lista de Ventas -->
+<div class="row col s12 m1" ng-if="ORTitle == 'ordenes' ">
+    <h3 class="header center-align">{{ORTitle}} <i class="material-icons">apps</i></h3>
+    <hr class="divider">
+    <table class="table container">
+        <thead>
+            <tr>
+                <th>orden</th>                
+                <th>mesa</th>
+                <th>mesero</th>
+                <th>orden</th>      
+            </tr>            
+        </thead>
+        <tbody>
+            <tr ng-repeat="order in orders">
+                <td>{{order.idorden}}</td>
+                <td>{{order.mesa.idmesa}}  </td>
+                <td ng-if="order.mesa.estatus == 1 ">{{order.mesa.nombres}}</td>
+                <td ng-if="order.mesa.estatus != 1 "><strike>{{order.mesa.nombres}}</strike></td>
+                <td >
+                    <a data-target="detalle_rate" class="modal-trigger " ng-click="chooseOrderDetail(order.idorden)"><i class="material-icons">visibility</i></a>                    
+                    
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!--  MODAL -->
+<div id="detalle_rate" class="modal">
+    <div class="modal-content">
+        <h4>detalle</h4>
+        <table>
+            <thead>
+                <th>{{OrderDetailRate.mesa.nombres}}</th>
+                <th>
+                    <span ng-if="OrderDetailRate.mesa.estatus == 1 "class="badge blue ">En Servicio</span>
+                    <span ng-if="OrderDetailRate.mesa.estatus != 1 "class="badge red ">Pagado</span>
+                </th>
+            </thead>
+        </table>
+        <hr>
+        <table class="table container">
+                <thead>
+                    <tr>
+                        <th>descripcion</th>                                        
+                        <th>cantidad</th>
+                        <th>total</th>                        
+                    </tr>            
+                </thead>
+                <tbody>
+                    <tr ng-repeat="ord in OrderDetailRate.orderDetails">
+                        <td>{{ord.indicador}}</td>
+                        <td>{{ord.cantidad}}</td>
+                        <td>{{ord.precio * 0}}</td>                                                
+                    </tr>
+                    <tr>
+                        <th> Sub Total </th>
+                        <th> {{OrderTotalRate.cantidad}} </th>
+                        <th> {{OrderTotalRate.precio * 0}} </th>
+                    </tr>
+                </tbody>
+            </table>                                   
+    </div>
+    <div class="modal-footer">
+        <button class="modal-action modal-close  btn-flat"><i class="material-icons">clear</i></button>                
+    </div>
+</div>
+
+<script>
+            $(document).ready(function () {
+                $('.modal').modal();
+            });
+</script>

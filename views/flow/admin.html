@@ -1,0 +1,279 @@
+<div class="row">    
+    <div class="fixed-action-btn">
+        <a class="btn-floating btn-large green darken-1">
+            <i class="large material-icons">mode_edit</i>
+        </a>
+        <ul>
+            <li><a class="btn-floating red" ng-click="changeView('empleados')"><i class="material-icons">directions_walk</i></a></li>
+            <li><a class="btn-floating yellow darken-1" ng-click="changeView('productos')"><i class="material-icons">event_note</i></a></li>
+            <li><a class="btn-floating blue darken-1" ng-click="changeView('categorias')"><i class="material-icons">shopping_basket</i></a></li>            
+
+        </ul>
+    </div>
+</div>
+
+<!-- Personal -->
+<div class="row col s12 container" ng-if="ORTitle == 'empleados'">
+    <h3 class="center-align">{{ORTitle}} <i class="material-icons">directions_walk</i></h3>
+    <hr>          
+    <input placeholder="Busqueda Rapida" id="first_name" type="text" class="validate col s6 " ng-model="search">    
+    <button class="btn col s2 modal-trigger" data-target="modal1" ng-click="showModal( {}, 'empleados', 'ins')"> <i class="material-icons">add_box</i></button>
+    <table class="striped">
+        <thead>
+            <tr>
+                <th>No. Empleado</th>
+                <th>Nombre</th>
+                <th>Perfil</th>              
+                <th>Opciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="emp in elements|  filter:search  " ng-if="emp.nombres != 'Disponible'">
+                <td> {{emp.idempleado}} </td>
+                <td> {{emp.nombres}} </td>
+                <td> {{( emp.idperfiles == '1' ? 'Administrador' : 'Usuario' )}} </td>                
+                <td> 
+                    <a class="btn-floating blue modal-trigger"  data-target="modal1" ng-click="showModal(emp, 'empleados', 'put' )"><i class="material-icons">assignment_ind</i></a> 
+                    <a class="btn-floating red modal-trigger"  data-target="modal1" ng-click="showModal(emp, 'empleados', 'del' )"><i class="material-icons">delete</i></a> 
+                </td>                
+            </tr>
+
+        </tbody>
+    </table>
+
+</div>
+
+<!-- Catalogo de Productos  -->
+<div class="row col s12 container" ng-if=" ORTitle == 'productos'">
+    <h3 class="center-align">{{ORTitle}} <i class="material-icons">event_note</i></h3>
+    <hr> 
+    <div class="row">
+        <div class="row col s6">
+            <label>Categorias </label>
+            <select class="browser-default" ng-options="c.descripcion for c in categorias.options" ng-model="categorias.selected" ng-change="chooseCatShow()">
+                
+            </select>
+            <a class="waves-effect waves-light btn modal-trigger"  data-target="modal1" ng-click="showModal(pro, 'productos', 'ins' )"><i class="material-icons">add</i></a>
+        </div>    
+        <div class="row col s8" ng-if="categorias.selected.descripcion != '' ">
+            <!--<h3 class="center-align">{{categorias.selected.descripcion}}</h3>-->
+        </div>
+    </div>
+    <div class="row" ng-show="categorias.selected">
+        <div class="col s1"></div>
+        <div class="col s10">
+        <input placeholder="Busqueda Rapida" id="first_name" type="text" class="validate col s6 " ng-model="search"> 
+        
+        <table class="table" >
+            <thead>
+                <tr>
+                    <th>id producto</th>
+                    <th>precio</th>
+                    <th>descripcion</th>     
+                    <th>opciones</th>     
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="pro in elements|  filter:search  " ng-if="categorias.selected.idcategoria == pro.idcategoria">
+                    <td>{{pro.idproducto}}</td>
+                    <td>{{pro.precio * 0}}</td>
+                    <td>{{pro.descripcion}}</td>
+                    <td>
+                    <a class="btn-floating blue modal-trigger"  data-target="modal1" ng-click="showModal(pro, 'productos', 'put' )"><i class="material-icons">assignment_ind</i></a> 
+                    <a class="btn-floating red modal-trigger"  data-target="modal1" ng-click="showModal(pro, 'productos', 'del' )"><i class="material-icons">delete</i></a> 
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        </div>
+        <div class="col s1"></div>
+    </div>
+    
+</div>
+
+<!-- Catalogo de Categorias  -->
+<div class="row col s12" ng-if=" ORTitle == 'categorias'">
+    <h3 class="center-align" >{{ORTitle}} <i class="material-icons">shopping_basket</i></h3>
+  
+    <hr> 
+</div>
+
+<!-- Catalogo de Indicadores  -->
+<div class="row col s12" ng-if=" ORTitle == 'indicadores'">
+    <h3 class="center-align">{{ORTitle}} <i class="material-icons">straighten</i></h3>
+    <hr> 
+</div>
+
+
+<!-- Modal Structure -->
+<!-- <div id="modal1" class="modal bottom-sheet"> -->
+<div id="modal1" class="modal modal-fixed-footer">  
+
+    <!-- EMPLEADOS VIEW -->
+    <div class="modal-content" ng-if="SubORTitle == 'empleados'">
+        <h4 class="center-align">
+            {{currentElement.nombres}} {{currentElement.apellidos}}
+        </h4>
+        <hr>
+        <!-- Actualizar , Insertar -->
+        <div class="row" ng-if="action == 'put' || action == 'ins' ">
+            <form class="col s12">
+                <div class="row">
+                    <div class="input-field col s6">
+                        <input placeholder="Placeholder" disabled id="idempleado" type="text" ng-model="currentElement.idempleado">
+                        <label for="idempleado" class="active"># Emp.</label>
+                    </div>                
+
+                    <div class="input-field col s6">
+                        <input id="nombres" type="text" class="validate"  ng-model="currentElement.nombres">
+                        <label for="nombres" class="active">nombres</label>
+                    </div>          
+                </div>
+                <div class="row">
+                    <div class="input-field col s6">
+                        <input id="apellidos" type="text" class="validate" ng-model="currentElement.apellidos">
+                        <label for="apellidos" class="active">apellidos</label>
+                    </div>
+
+                    <div class="input-field col s6">
+                        <input type="text" id="user" ng-model="currentElement.user">
+                        <label for="user" class="active">nombre usuario</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s6">
+                        <input type="password" id="pass" ng-model="currentElement.pass">
+                        <label for="pass" class="active">password</label>
+                    </div> 
+                </div>
+            </form>
+        </div>
+        <!-- Borrar  -->
+        <div class="row" ng-if="action == 'del' ">
+            <div class="col s6 align-left ">
+                <p class="flow-text">
+                    {{elementQuestion.question}}
+                </p>
+                <p class="flow-text">
+                    <a class="modal-close" ng-click="saveModalElement(SubORTitle, action)"> <i class="material-icons">check</i> </a>
+                    <a class="modal-close modal-trigger" data-target="modal1" > <i class="material-icons">close</i> </a>
+                </p>
+            </div>                        
+        </div>
+
+    </div>
+
+    <!-- Product View Modal -->
+    <div class="modal-content" ng-if="SubORTitle == 'productos'">
+    <h4 class="center-align">
+            {{currentElement.descripcion}} 
+        </h4>        
+    <!-- Actualizar e Insertar -->       
+    <hr>
+    <div class="row" ng-if="action == 'put' || action == 'ins' ">        
+        <form class="col s12">        
+            <div class="row">
+                <div class="input-field col s6">
+                    <input id="descripcion" type="text" class="validate"  ng-model="currentElement.descripcion">
+                    <label for="nombres" class="active">descripcion</label>
+                </div>
+                <div class="input-field col s6">
+                    <input id="precio" type="text" class="validate"  ng-model="currentElement.precio">
+                    <label for="precio" class="active">precio</label>
+                </div>                                
+            </div>        
+            <div class="row">
+                <div class="input-field col s4">
+                    <input id="opcion1" type="text" class="validate"  ng-model="currentElement.opcion1">
+                    <label for="opcion1" class="active">Opcion 1</label>
+                </div>
+                <div class="input-field col s4">
+                    <input id="opcion2" type="text" class="validate"  ng-model="currentElement.opcion2">
+                    <label for="opcion2" class="active">Opcion 2</label>                    
+                </div>
+                <div class="input-field col s4">
+                    <input id="opcion3" type="text" class="validate"  ng-model="currentElement.opcion3">
+                    <label for="opcion3" class="active">Opcion 3</label>                    
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col s4">
+                    <input id="opcion4" type="text" class="validate"  ng-model="currentElement.opcion4">
+                    <label for="opcion4" class="active">Opcion 4</label>
+                </div>
+                <div class="input-field col s4">
+                    <input id="opcion5" type="text" class="validate"  ng-model="currentElement.opcion5">
+                    <label for="opcion5" class="active">Opcion 5</label>                    
+                </div>
+                <div class="input-field col s4">
+                    <input id="opcion6" type="text" class="validate"  ng-model="currentElement.opcion6">
+                    <label for="opcion6" class="active">Opcion 6</label>                    
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col s4">
+                    <input id="opcion7" type="text" class="validate"  ng-model="currentElement.opcion7">
+                    <label for="nombres" class="active">Opcion 7</label>
+                </div>
+                <div class="input-field col s4">
+                    <input id="opcion8" type="text" class="validate"  ng-model="currentElement.opcion8">
+                    <label for="opcion8" class="active">Opcion 8</label>                    
+                </div>
+                <div class="input-field col s4">
+                    <input id="opcion9" type="text" class="validate"  ng-model="currentElement.opcion9">
+                    <label for="opcion9" class="active">Opcion 9</label>                    
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col s4">
+                    <input id="opcion10" type="text" class="validate"  ng-model="currentElement.opcion10">
+                    <label for="opcion10" class="active">Opcion 10</label>
+                </div>            
+            </div>            
+        </form>       
+    </div>
+        
+
+    
+    </div>
+
+    <div class="modal-content" ng-if="SubORTitle == 'categorias'">
+
+    </div>
+
+    <div class="modal-content" ng-if="SubORTitle == 'mesas'">
+
+    </div>
+
+    <div class="modal-footer row">
+        <div class="col s6 align-left " ng-if=" beforeToDoMake == true ">
+            <p class="flow-text">
+                {{elementQuestion.question}}
+            </p>
+            <p class="flow-text">
+                <a class="modal-close" ng-click="saveModalElement(SubORTitle, action)"> <i class="material-icons">check</i> </a>
+                <a class="modal-close"> <i class="material-icons">close</i> </a>
+            </p>
+        </div>
+        <div class="col s6 align-rigth "  >
+            <button  ng-if="action != 'del'" class="btn-floating    blue darken-1 " ng-if="SubORTitle == 'empleados' && currentElement.nombres != '' " type="submit" name="action" ng-click="saveModalElementQuestion(SubORTitle,action)">
+                <i class="material-icons right">save</i>
+            </button>
+            <a  class="modal-close btn-floating  red darken-1  ">   <i class="material-icons right">close</i> </a>
+
+        </div>
+    </div>
+</div>
+<script>
+    
+  document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('select');
+    var instances = M.FormSelect.init(elems, options);
+  });
+  
+    $(document).ready(function () {
+        $('.modal').modal();
+       $('select').formSelect();
+       $('.tabs').tabs();
+    });
+</script>

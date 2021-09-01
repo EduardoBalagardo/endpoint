@@ -1,5 +1,5 @@
 <?php
-
+error_reporting(E_ALL);
 require_once './model/DataBase.php';
 require_once './model/Query.php';
 header('Access-Control-Allow-Origin: *');
@@ -229,9 +229,9 @@ if($kind == DataBase::PRINT_CENTER){
     $db->setNombre(@$request->params->empleado->nombres);
     $db->setIdorden(@$request->params->idorden);
     //cantidad: cantidad, idproducto: idproducto, descripcion: descripcion, precio: precio, estatus: 1, categoria: 1, size: indicador, nota: nota        
-    var_dump($request->params->target);
-    var_dump(@$request->params->ticket);
-    // echo json_encode($db->printAllThings(@$request->params->target, @$request->params->ticket));       
+    // var_dump($request->params->target);
+    // var_dump(@$request->params->ticket);
+    $db->printAllThings(@$request->params->target, @$request->params->ticket);       
     echo json_encode(array('message'=>'OK'));
 
     
@@ -327,13 +327,17 @@ if($kind == DataBase::CRUD_CATALOG){
         if( $table == 'empleados'){
             $fields = "  nombres = '{$currentE->nombres}',  apellidos = '{$currentE->apellidos}',  user = '{$currentE->user}',  pass = '{$currentE->pass}'";
             $where = " idempleado =  {$currentE->idempleado}" ;
-        }else if ($table =='productos') {
+        }
+        else if ($table =='productos') {
             $fields= " precio = {$currentE->idproducto},  descripcion = '{$currentE->descripcion}' , precio = {$currentE->precio}";
-            $where = " idproducto = {$currentE->idproducto} ";
-            
-        }  
-        
+            $where = " idproducto = {$currentE->idproducto} ";            
+        }
+        else if  ($table =='categorias'){
+            $fields= "  descripcion = '{$currentE->descripcion}' ";
+            $where = " idcategoria = {$currentE->idcategoria} ";
+        }   
         $status = false;    
+        $table = ($table === 'categorias') ? 'categorias_productos' : $table;
         $values = array('type'   => 'put', 
                     'fields' => $fields, 
                     'table'  => " `{$table}` ", 
@@ -407,11 +411,23 @@ if($kind == DataBase::CRUD_CATALOG){
                         }
             }             
             
-        }       
+        }  
         
-        
-        
-    } 
+        else if  ($table =='categorias'){
+            $fields= " descripcion";            
+            $where = " '{$currentE->descripcion}' ";
+            $values = array('type'   => 'ins', 
+            'fields' => $fields, 
+            'table'  => " `categorias_productos` ", 
+            'where'  => $where, 
+            'inner'  => '');
+            $sql = $db->queryManagment($values['type'], $values['fields'], $values['table'], $values['where'], $values['inner']);            
+            if( $db->put($sql) == true ){
+                    $status = true;    
+                    $answer = array('msg'=>"datos insertados",'status'=>$status);     
+            }                        
+        } 
+    }
     //DELETESET 
     else if ( $action == 'del'){
         //EMPLEADOS
@@ -421,6 +437,11 @@ if($kind == DataBase::CRUD_CATALOG){
         } else if( $table == 'productos'){
             $fields = "";
             $where = " idproducto =  {$currentE->idproducto}" ; 
+
+        }else if( $table == 'categorias'){
+            $fields = "";
+            $where = " idcategoria=  {$currentE->idcategoria}" ; 
+            $table = ($table === 'categorias') ? 'categorias_productos' : $table;
         }
         
         $status = false;    

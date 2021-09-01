@@ -9,8 +9,9 @@ var app = angular.module('tortasAhogadas', ['ngRoute', 'ngResource','chart.js'])
                         .when('/login', {templateUrl: 'views/login.html', controller: 'loginCtrl'})
                         .when('/mesas', {templateUrl: 'views/flow/mesas.html', controller: 'mesasCtrl'})
                         .when('/ordenar/:id', {templateUrl: 'views/flow/ordenes.html', controller: 'ordenarCtrl'})
-                        .when('/ordenes', {templateUrl: 'views/flow/ordenes_rate.html', controller: 'ordenesRateCtrl'})     
-                        .when('/administrar', {templateUrl: 'views/flow/admin.html', controller: 'adminCtrl'})                     
+                        // .when('/ordenes', {templateUrl: 'views/flow/ordenes_rate.html', controller: 'ordenesRateCtrl'})     
+                        // .when('/administrar', {templateUrl: 'views/flow/admin.html', controller: 'adminCtrl'})        
+                        // .when('/modules', {templateUrl: 'views/flow/adminModules.html', controller: 'adminModulesCtrl'})                     
                         .otherwise({redirectTo: '/login'})
                 //For uses on 1.6.6
                 $locationProvider.hashPrefix('');
@@ -142,11 +143,11 @@ var app = angular.module('tortasAhogadas', ['ngRoute', 'ngResource','chart.js'])
                 $scope.configuracion = '';
                 $scope.ordenDetail = [];
                 $scope.ordenResume = {orden: [], cantidad: 0, total: 0};
-                //Valida la Orden Actual 
+                //Valida la Orden Actual                 
                 httpApp.rxhRequest({kind: "check_order", idmesa: $scope.num, idempleado: $rootScope.User[0].idempleado}, function (data) {
                     if (data.statusText === 'OK') {
                         //Obtiene Categorias
-                        console.log(data.data);
+                        // console.log(data.data);
                         var req = data.data;
                         $rootScope.idorder = req.id;
                         $scope.ordenDetail = req.order;
@@ -258,8 +259,9 @@ var app = angular.module('tortasAhogadas', ['ngRoute', 'ngResource','chart.js'])
                     var user = $rootScope.User[0];
                     var prod = $scope.indi[0];
                     var nuevos = [];
+                    var _counter = $scope.cantidades.selekter.val || 1;
                     // Elementos Seleccionados total por cada producto 
-                    for (var i = 0; i < $scope.cantidades.selekter.val; i++) {
+                    for (var i = 0; i < _counter; i++) {
                         //// categoria 
                         nuevos.push({idmesa: mesa, idempleado: user.idempleado, idproducto: prod.idproducto, descripcion: prod.descripcion, estatus: 0, categoria:prod.idcategoria, indicador: $scope.configuracion, cantidad: 1, precio: prod.precio, nota: ''});
                     }
@@ -275,7 +277,7 @@ var app = angular.module('tortasAhogadas', ['ngRoute', 'ngResource','chart.js'])
                     });
                     // Crea un resumen de la orden
                     $scope.ordenResume = {orden: $scope.ordenDetail, cantidad: cant, total: total};
-                    toazt("Se Agregaron (" + $scope.cantidades.selekter.val + ") - " + prod.descripcion + " total de productos =  " + $scope.ordenResume.cantidad);
+                    toazt("Se Agregaron (" + _counter + ") - " + prod.descripcion + " total de productos =  " + $scope.ordenResume.cantidad);
                 }
 
                 //Borrar Productos del Detalle con estatus 0 antes de ser pedidos
@@ -307,9 +309,7 @@ var app = angular.module('tortasAhogadas', ['ngRoute', 'ngResource','chart.js'])
                                         $rootScope.idorder = req.id;
                                         //b) Con la Orden Creada almacenamos todos los elementos de uno por uno
                                         httpApp.rxhRequest({kind: 'add_order', 'order': ordSend, 'idorden': req.id},
-                                                function (data) {
-                                                    console.log('add_order');
-                                                    console.log(data);
+                                                function (data) {                          
                                                     if (data.statusText === 'OK') {
                                                         var req = data.data;
                                                         var indexes = [];
@@ -345,8 +345,7 @@ var app = angular.module('tortasAhogadas', ['ngRoute', 'ngResource','chart.js'])
                                                             }
                                                         });
                                                         httpApp.rxhRequest({kind: 'print_center', 'ticket': ticket, 'idorden':$rootScope.idorder, 'idmesa': $scope.num, 'empleado':$rootScope.User[0], target:'Orden'},function(data){
-                                                            if(data.statusText === 'OK' ){
-                                                                console.log(data);
+                                                            if(data.statusText === 'OK' ){                                                                
                                                                 toazt(" Se envio la Orden a Cocina ")
                                                                 
                                                             }                                                            
@@ -367,9 +366,11 @@ var app = angular.module('tortasAhogadas', ['ngRoute', 'ngResource','chart.js'])
                 
                 //Pagar Orden 
                 $scope.payOrder = function(){                    
+                    console.log($scope.ordenDetail);
+                    console.log($rootScope.idorder);
                     httpApp.rxhRequest({kind: 'pay_order',  idorden:$rootScope.idorder, 'idmesa': $scope.num, 'empleado': $rootScope.User[0]}, function (data) {
                         $scope.reset = data.data;
-                        if(data.statusText === 'OK'){                            
+                    if(data.statusText === 'OK'){                            
                             httpApp.rxhRequest({kind: 'print_center', 'ticket': $scope.ordenDetail, 'idorden': $rootScope.idorder, 'idmesa': $scope.num, 'empleado': $rootScope.User[0], target: 'Pagar'}, 
                                 function (data) {
                                 if (data.statusText === 'OK') {                                   
@@ -377,226 +378,9 @@ var app = angular.module('tortasAhogadas', ['ngRoute', 'ngResource','chart.js'])
                                     $location.path('/mesas');
                                 }
                             });                                                                                                     
-                        }
-                    },function(err){
-                        console.log(err.message);                        
-                    });                   
-                }
-            }])
-
-        .controller('ordenesRateCtrl',['$scope', '$routeParams', '$rootScope', '$location', 'httpApp', 'sessionService', function ($scope, $routeParams, $rootScope, $location, httpApp, sessionService){
-            $scope.orders = [];            
-            $scope.ORTitle = "ordenes";
-            $scope.OrderDetailRate = [];
-            $scope.labels_all =[];
-            $scope.data_all = [];
-            $scope.chart = [];
-            $scope.beforeToDoMake = false;
-            // Obtencion De las Ordenes del Dia
-            httpApp.rxhRequest({kind: 'get_orders', subKind: 'todas_current', filterKind:''}, function (data) {
-                if (data.statusText === 'OK') {
-                    $scope.orders = data.data.order;                    
-                    $scope.total = 0;
-                    $scope.cantidad  = 0;
-                    angular.foreach($scope.orders.orderDetails,function(od){
-                       $scope.total += od.total;
-                       $scope.cantidad += od.cantidad;
-                    });
-                    
-                }
-            }, function (err) {
-                toazt("Error Interno Verifique Credenciales de Acceso " + err.message);
-                console.log(err.message);
-            });
-                                    
-            $scope.changeView = function(view){                
-                $scope.ORTitle = view;
-                if( $scope.ORTitle == 'graficas' ){
-                    $scope.labels_all =[];
-                    $scope.data_all = [];
-                    httpApp.rxhRequest({kind: 'get_charts'}, function (data) {                        
-                        $scope.chart = data.data.chart;
-                        console.log($scope.chart);
-                        for(var c = 0; c<$scope.chart.length; c++){                                                        
-                            $scope.labels_all.push($scope.chart[c].indicador.substr(0,30));
-                            $scope.data_all.push( $scope.chart[c].cantidad);                            
-                        }                                            
-                    },
-                    function (err) {
-                        console.log(err.message);
-                    });
-                              }
-            }
-            
-            /** Choose some ***/
-            $scope.chooseOrderDetail = function(idorder){               
-                $scope.OrderDetailRate = [];
-                $scope.OrderTotalRate  = {precio:0, cantidad:0};
-                for(var i = 0; i<$scope.orders.length; i++){                    
-                    if($scope.orders[i].idorden === idorder){
-                        $scope.OrderDetailRate  = $scope.orders[i];                        
-                        break;
-                    }
-                }
-                var ordersD = $scope.OrderDetailRate.orderDetails;
-                for(var c = 0; c<ordersD.length; c++){
-                    $scope.OrderTotalRate.precio += ordersD[c].precio;
-                    $scope.OrderTotalRate.cantidad += ordersD[c].cantidad;                    
-                }
-                
-                
-            }
-            
-            
-        }])
-        
-
-        .controller('adminCtrl',['$scope', '$routeParams', '$rootScope', '$location', 'httpApp', 'sessionService',function($scope, $routeParams, $rootScope, $location, httpApp, sessionService){
-            
-            $scope.ORTitle         = "";
-            $scope.SubORTitle      = "";
-            $scope.SunTitleScreen  = "";
-            $scope.search          = "";
-            $scope.action          = "";            
-            $scope.elements        = [];
-            $scope.currentElement  = {};
-            $scope.elementQuestion = {};
-            $scope.categorias          = {options:[],selected:{}};
-            $rootScope.perfiles        = {options:[],selected:{}};            
-            $scope.disableWenOK   = true;                                    
-            /**Cambio de vista**/
-            $scope.changeView = function(view){                
-                $scope.ORTitle = view;
-                $scope.elements = [];
-                $scope.categorias = {options:[],selected:{}};
-                httpApp.rxhRequest({kind: $scope.ORTitle, arr: 'arrt'}, function (data) {
-                    if (data.statusText === 'OK') {
-                        console.log(data.data);
-                        $scope.elements  = data.data;                        
-                        
-                        if( $scope.ORTitle === 'productos' ){  
-                            httpApp.rxhRequest({kind: 'categorias', arr: 'arrt'}, function (data) {
-                                if (data.statusText === 'OK') {
-                                   $scope.categorias.options  = data.data;                                             
-                                }
-                            }, function (err) {
-                                toazt("Error Interno Verifique Credenciales de Acceso " + err.message);
-                                console.log(err.message);
-                            });                             
                         }                        
-                    }
-                }, function (err) {
-                    toazt("Error Interno Verifique Credenciales de Acceso " + err.message);
-                    console.log(err.message);
-                }); 
-            }
-            
-            /** Modal Elements **/
-            $scope.showModal = function (item, type, act) {
-           
-                $scope.beforeToDoMake = false;
-                $scope.SubORTitle = type;
-                $scope.SunTitleScreen = "";
-                $scope.currentElement = {};
-                
-                //for (var e = 0; e < $scope.elements.length; e++) {
-                    //EMPLEADOS
-                    if(type == 'empleados'){
-                        $rootScope.perfiles  = {options: [ {idperfiles:1, descripcion:'Administrador' } , {idperfiles:2, descripcion:'Usuario'} ], selected:{} };
-                        //update
-                        
-                        if(act == 'put'){
-                            $scope.action = 'put';
-                            $scope.disableWenOK = true;
-                            for (var e = 0; e < $scope.elements.length; e++) {
-                                if($scope.elements[e].idempleado == item.idempleado){
-                                    $scope.currentElement = $scope.elements[e];                                                                             
-                                    angular.forEach($scope.perfiles,function(p){
-                                        if($scope.currentElement.idperfiles == p.idperfiles ) {                                            
-                                            $scope.perfiles.selected = p;
-                                        }
-                                    });
-                                    break;
-                                }                                     
-                            }
-                        } 
-                        //insert
-                        if(act == 'ins'){
-                            $scope.action = 'ins';
-                            $scope.disableWenOK = false;
-                            $scope.currentElement = {};
-                        }
-                        
-                        if(act == 'del'){
-                            $scope.action = 'del';                             
-                            $scope.disableWenOK = false;
-                            for (var e = 0; e < $scope.elements.length; e++) {
-                                if($scope.elements[e].idempleado == item.idempleado){
-                                    $scope.currentElement = $scope.elements[e];
-                                    $scope.elementQuestion = {question:" ¿ Desea borrar un el elemento del catalogo " + $scope.ORTitle + " ? "};    
-                                    break;
-                                }                              
-                            }
-                        }   
-                        
-                    }                              
-                    
-                    //PRODUCTOS
-                    if(type == 'productos'){
-                        $scope.action = act;                        
-                        if(act == 'ins'){
-                            
-                            $scope.disableWenOK = false;
-                            $scope.currentElement = {idproducto:0, idcategoria:$scope.categorias.selected.idcategoria, descripcion:'', precio:0, opcion1:'',opcion2:'',opcion3:'',opcion4:'',opcion5:'',opcion6:'',opcion7:'',opcion8:'',opcion9:'',opcion10:'' };
-                        } 
-
-                        if(act == 'put' ){                            
-                            $scope.disableWenOK = true;
-                            for (var e = 0; e < $scope.elements.length; e++) {
-                                if(item.idproducto === $scope.elements[e].idproducto ){
-                                  $scope.currentElement = $scope.elements[e];                    
-                                  console.log($scope.currentElement)
-                                  $scope.currentElement = {idproducto:$scope.elements[e].idproducto, 
-                                                           idcategoria:$scope.categorias.selected.idcategoria, 
-                                                           descripcion:$scope.elements[e].descripcion, 
-                                                           precio:0, 
-                                                           opcion1:$scope.elements[e].opcion1,
-                                                           opcion2:$scope.elements[e].opcion2,
-                                                           opcion3:$scope.elements[e].opcion3,
-                                                           opcion4:$scope.elements[e].opcion4,
-                                                           opcion5:$scope.elements[e].opcion5,
-                                                           opcion6:$scope.elements[e].opcion6,
-                                                           opcion7:$scope.elements[e].opcion7,
-                                                           opcion8:$scope.elements[e].opcion8,
-                                                           opcion9:$scope.elements[e].opcion9,
-                                                           opcion10:$scope.elements[e].opcion10 };
-                                  
-                                }
-                            }                            
-                        }
-
-                        if(act == 'del' ){
-
-                        }
-                        
-                        
-                        
-                        
-                    }
-                    
-                    //CATEGORIAS
-                    if(type == 'categorias_productos'){
-                        
-                    }
-                    
-                                        //PRODUCTOS
-                    if(type == 'mesas'){
-                        
-                    }
-                //}
-                     
-                
-            }
+                    });
+                }
             
 
             /** Save Modal Elements Quetion **/
@@ -613,22 +397,23 @@ var app = angular.module('tortasAhogadas', ['ngRoute', 'ngResource','chart.js'])
             
             /** save Modal Element Action**/
             $scope.saveModalElement = function(type,act){                
-                $scope.currentElement.idperfiles=2;                 
+                // type = ( type === 'categorias')  ? 'categorias_productos': type ;
+                $scope.currentElement.idperfiles=2;                                 
                 var params = { kind: 'crud_catalogs', 
                                      type:type, 
                                      action:act, 
                                      currentE: $scope.currentElement };             
-                              
+                                     console.log(params)
                 httpApp.rxhRequest(params,
-                function(data){
-                    console.log("before actions");
-                    console.log(data);
+                function(data){                                        
                     /** Finaliza y Actualiza el Catalogo**/
-                    httpApp.rxhRequest({kind: $scope.ORTitle, arr: 'arrt'}, function (data) {
-                        
+                    // $scope.ORTitle = ($scope.ORTitle ==='categorias') ? 'categorias_productos' : $scope.ORTitle;
+                    httpApp.rxhRequest({kind: $scope.ORTitle, arr: 'arrt'}, function (data) {                        
+                        console.log("entramos");
+                        console.log(data.data);
                         if (data.statusText === 'OK') {
                             $scope.elements  = data.data;   
-
+                            // $scope.ORTitle = ($scope.ORTitle ==='categorias_productos') ? 'categorias' : $scope.ORTitle;
                         }
                     }, function (err) {
                         toazt("Error Interno Verifique Credenciales de Acceso " + err.message);
@@ -639,16 +424,20 @@ var app = angular.module('tortasAhogadas', ['ngRoute', 'ngResource','chart.js'])
                     console.log(err.message);
                 });
             }
-            
-            /** Choose One Category Show Their Elements
-            $scope.chooseCatShow = function(){
-                $scope.currentElement = {};
-                console.log('$scope.categorias');
-                console.log($scope.categorias.selected);                
-            }
-                **/
+
         }])
 
+        // .controller('ordenesRateCtrl', ['$scope', '$routeParams', '$rootScope', '$location', 'httpApp', 'sessionService', function ($scope, $routeParams, $rootScope, $location, httpApp, sessionService) {
+        //     alert("ordenesRateCtrl");
+        // }])
+
+        // .controller('adminCtrl', ['$scope', '$routeParams', '$rootScope', '$location', 'httpApp', 'sessionService', function ($scope, $routeParams, $rootScope, $location, httpApp, sessionService) {
+        //     alert("adminCtrl");
+        // }])
+
+        .controller('adminModulesCtrl',['$scope', '$routeParams', '$rootScope', '$location', 'httpApp', 'sessionService',function($scope, $routeParams, $rootScope, $location, httpApp, sessionService){
+            alert("are in");
+        }])
         //Factory LoginService 
         .factory('loginService', ['$rootScope', '$http', '$location', 'sessionService', function ($rootScope, $http, $location, sessionService) {
                 $rootScope.User = {};

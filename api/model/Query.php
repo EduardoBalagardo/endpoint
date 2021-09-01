@@ -129,36 +129,36 @@ class Query extends DataBase {
                     $detalleOrden .= "Cantidad $some->cantidad " . ' ' .  " $some->indicador" . ' ' . $some->nota;                                        
                 }
                 
-				for($i=0; $i<count($ticket); $i++){								
+				// for($i=0; $i<count($ticket); $i++){								
                     
                     
-    			    // $key = $ticket[$i]["idproducto"].'|'.$ticket[$i]["size"].'|'.$ticket[$i]["indicador"].'|'.$ticket[$i]["nota"];													
-                    $key = $ticket[$i]["idproducto"].'|'.$ticket[$i]["size"].'|'.$ticket[$i]["indicador"];
-					if( in_array( $key, $keyArrays )  === false ){
-						array_push($keyArrays, $key);						
-					}																						
-				}
+    			//     // $key = $ticket[$i]["idproducto"].'|'.$ticket[$i]["size"].'|'.$ticket[$i]["indicador"].'|'.$ticket[$i]["nota"];													
+                //     $key = $ticket[$i]["idproducto"].'|'.$ticket[$i]["size"].'|'.$ticket[$i]["indicador"];
+				// 	if( in_array( $key, $keyArrays )  === false ){
+				// 		array_push($keyArrays, $key);						
+				// 	}																						
+				// }
 							
-				for($t=0;$t<count($keyArrays);$t++){
-					$expVal = explode("|",$keyArrays[$t]);
-					$id   = $expVal[0];
-					$size = $expVal[1];
-					$desc = $expVal[2];
-                                        //$nota = $expVal[3];
-					$cantidad = 0;
-					for($i=0; $i<count($ticket); $i++){
-                                                //&&  $nota == $ticket[$i]['nota']
-						if($id == $ticket[$i]["idproducto"] && $size == $ticket[$i]["size"] && $desc == $ticket[$i]["indicador"] ){	
-							$cantidad++;
-							$nombre = $ticket[$i]["indicador"];
-							$size   = $ticket[$i]["size"];
-							//$id     = $ticket[$i]["idproducto"];																							
-						}
-					}					
-					$detalleOrden .= " Cant." . $cantidad . " " . strtoupper(trim($nombre) . ' | ' .( trim($size) == 'empty' ? '' : trim($size) ) ) . $s_l;
-				}	
+				// for($t=0;$t<count($keyArrays);$t++){
+				// 	$expVal = explode("|",$keyArrays[$t]);
+				// 	$id   = $expVal[0];
+				// 	$size = $expVal[1];
+				// 	$desc = $expVal[2];
+                //                         //$nota = $expVal[3];
+				// 	$cantidad = 0;
+				// 	for($i=0; $i<count($ticket); $i++){
+                //                                 //&&  $nota == $ticket[$i]['nota']
+				// 		if($id == $ticket[$i]["idproducto"] && $size == $ticket[$i]["size"] && $desc == $ticket[$i]["indicador"] ){	
+				// 			$cantidad++;
+				// 			$nombre = $ticket[$i]["indicador"];
+				// 			$size   = $ticket[$i]["size"];
+				// 			//$id     = $ticket[$i]["idproducto"];																							
+				// 		}
+				// 	}					
+				// 	$detalleOrden .= " Cant." . $cantidad . " " . strtoupper(trim($nombre) . ' | ' .( trim($size) == 'empty' ? '' : trim($size) ) ) . $s_l;
+				// }	
                 ( strlen($detalleOrden)>0 ? $this->printing( " ---------- TICKET ----------- " . $s_l . $printText.$detalleOrden, self::PRINTER_COCINAS) : '');							
-                //return array('pagado'=>true);
+                return array('pagado'=>true);
             }
 
         }                
@@ -170,17 +170,17 @@ class Query extends DataBase {
      * **/    
     private function printing($text, $impresora)    {
         //$printer = printer_open("NPI06D6B1 (HP LaserJet 500 color MFP M575)");
-        // $printer = printer_open($impresora);
-        // printer_start_doc           ($printer, 'My Document');
-        // printer_start_page          ($printer);
-        // $font = printer_create_font ('Arial',50,48,20,false,false, false,0);
-        // printer_select_font         ($printer, $font);
-        // printer_set_option          ($printer, PRINTER_MODE, 'RAW');
-        // printer_write               ($printer, $text);
-        // printer_delete_font         ($font);
-        // printer_end_page            ($printer);
-        // printer_end_doc             ($printer);
-        // printer_close               ($printer);  
+        $printer = printer_open($impresora);
+        printer_start_doc           ($printer, 'My Document');
+        printer_start_page          ($printer);
+        $font = printer_create_font ('Arial',50,48,20,false,false, false,0);
+        printer_select_font         ($printer, $font);
+        printer_set_option          ($printer, PRINTER_MODE, 'RAW');
+        printer_write               ($printer, $text);
+        printer_delete_font         ($font);
+        printer_end_page            ($printer);
+        printer_end_doc             ($printer);
+        printer_close               ($printer);  
     }    
     
 }

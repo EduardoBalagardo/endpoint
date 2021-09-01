@@ -7,11 +7,11 @@ class DAO {
     const FIELDS_ORDENES   = "idorden, idmesa, idempleado, fecha, estatus";
     const FIELDS_ORDEN_PRO = "idorden_productos, idorden, idproducto, indicador, cantidad, size, estatus";
     const FIELDS_EMPLOYEE  = "idperfiles, nombres, apellidos, user, pass, telefono, fecha_nacimiento";
-    const PRINTER_BEBIDAS  = "Bebidas";
-    const PRINTER_COCINAS  = "Cocina";
+    // const PRINTER_BEBIDAS  = "Bebidas";
+    // const PRINTER_COCINAS  = "Cocina";
     
-//    const PRINTER_BEBIDAS  = "M605";
-//    const PRINTER_COCINAS  = "M605";    
+   const PRINTER_BEBIDAS  = "HP DJ 2130 series";
+   const PRINTER_COCINAS  = "HP DJ 2130 series";    
     
     
     
